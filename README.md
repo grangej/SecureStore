@@ -1,3 +1,3 @@
 # SecureStore
 
-A description of this package.
+Simple Key / Value store for login info
