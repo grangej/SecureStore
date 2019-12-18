@@ -6,6 +6,7 @@ extension KeychainSwift: SecureStoreProvider {
         guard let value = value else {
 
             self.delete(key.key)
+            return 
         }
 
         self.set(value, forKey: key.key)
