@@ -1,4 +1,5 @@
 import Foundation
+import KeychainSwift
 
 public protocol SecureStoreProvider {
 
@@ -69,7 +70,9 @@ public class SecureStore: SecureStoreProvider {
 
     public convenience init() {
 
-        self.init(provider: UserDefaultsStore())
+        let provider = KeychainSwift()
+        provider.synchronizable = true
+        self.init(provider: provider)
     }
 
     public required init(provider: SecureStoreProvider) {
