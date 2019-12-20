@@ -8,33 +8,6 @@ public protocol SecureStoreProvider {
     func clearAll()
 }
 
-class UserDefaultsStore: SecureStoreProvider {
-
-    let store = UserDefaults.standard
-
-    func set(value: String?, forKey key: SecureStore.SecureKey) {
-
-        store.set(value, forKey: key.key)
-    }
-
-    func value(_ key: SecureStore.SecureKey) -> String? {
-        return store.string(forKey: key.key)
-    }
-
-    func clearAll() {
-
-        let dictionary = store.dictionaryRepresentation()
-        dictionary.keys.forEach { key in
-            store.removeObject(forKey: key)
-        }
-    }
-
-    init() {
-
-
-    }
-}
-
 public class SecureStore: SecureStoreProvider {
 
     public enum SecureKey {
