@@ -44,8 +44,12 @@ public class SecureStore: SecureStoreProvider {
     public convenience init() {
 
         let provider = KeychainSwift()
-        provider.synchronizable = true
+        provider.synchronizable = false
         self.init(provider: provider)
+    }
+
+    public func keyChainSynchronizable(_ enabled: Bool) {
+        (provider as? KeychainSwift)?.synchronizable = enabled
     }
 
     public required init(provider: SecureStoreProvider) {
