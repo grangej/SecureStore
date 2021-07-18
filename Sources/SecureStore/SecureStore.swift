@@ -4,7 +4,9 @@ import KeychainSwift
 public protocol SecureStoreProvider {
 
     func set(value: String?, forKey key: SecureStore.SecureKey)
+    func set(value: Data?, forKey key: SecureStore.SecureKey)
     func value(_ key: SecureStore.SecureKey) -> String?
+    func value(_ key: SecureStore.SecureKey) -> Data?
     func clearAll()
 }
 
@@ -41,10 +43,11 @@ public class SecureStore: SecureStoreProvider {
     public static var defaultStore: SecureStore = SecureStore()
     private let provider: SecureStoreProvider
 
-    public convenience init() {
+    public convenience init(accessGroup: String? = nil) {
 
         let provider = KeychainSwift()
         provider.synchronizable = false
+        provider.accessGroup = accessGroup
         self.init(provider: provider)
     }
 
@@ -53,7 +56,6 @@ public class SecureStore: SecureStoreProvider {
     }
 
     public required init(provider: SecureStoreProvider) {
-
         self.provider = provider
     }
 
@@ -62,6 +64,14 @@ public class SecureStore: SecureStoreProvider {
     }
 
     public func value(_ key: SecureStore.SecureKey) -> String? {
+        return provider.value(key)
+    }
+    
+    public func set(value: Data?, forKey key: SecureKey) {
+        provider.set(value: value, forKey: key)
+    }
+    
+    public func value(_ key: SecureKey) -> Data? {
         return provider.value(key)
     }
 

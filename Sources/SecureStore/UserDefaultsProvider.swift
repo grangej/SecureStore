@@ -1,6 +1,14 @@
 import Foundation
 
 public class UserDefaultsStore: SecureStoreProvider {
+    public func set(value: Data?, forKey key: SecureStore.SecureKey) {
+        store.set(value, forKey: key.key)
+    }
+    
+    public func value(_ key: SecureStore.SecureKey) -> Data? {
+        return store.data(forKey: key.key)
+    }
+    
 
     let store = UserDefaults.standard
 
