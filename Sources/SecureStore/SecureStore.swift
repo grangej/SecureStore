@@ -2,61 +2,63 @@ import Foundation
 import KeychainSwift
 
 public protocol SecureStoreProvider {
+    typealias Key = SecureStore.SecureKey
 
-    func set(value: String?, forKey key: SecureStore.SecureKey)
-    func set(value: Data?, forKey key: SecureStore.SecureKey)
-    func value(_ key: SecureStore.SecureKey) -> String?
-    func value(_ key: SecureStore.SecureKey) -> Data?
-    func clearAll()
+    mutating func set(value: String?, forKey key: Key) async
+    mutating func set(value: Data?, forKey key: Key) async
+    func value(_ key: Key) async -> String?
+    func value(_ key: Key) async -> Data?
+    func clearAll() async
 }
 
-public class SecureStore: SecureStoreProvider {
+extension SecureStore.SecureKey {
 
-    public enum SecureKey {
+    func finalKey(keyPrefix: String?) -> Self {
 
-        case facebookId
-        case appleId
-        case appleFirstName
-        case appleLastName
-        case appleEmail
-        case username
-        case password
-        case sessionToken
-        case other(key: String)
-        case prefixKey(key: String)
+        if let keyPrefix = keyPrefix {
 
-        public var key: String {
-            switch self {
-            case .facebookId: return "SecureKey.facebookId"
-            case .appleId: return "SecureKey.appleId"
-            case .appleFirstName: return "SecureKey.appleFirstName"
-            case .appleLastName: return "SecureKey.appleLastName"
-            case .appleEmail: return "SecureKey.appleEmail"
-
-            case .username: return "SecureKey.username"
-            case .password: return "SecureKey.password"
-            case .sessionToken: return "SecureKey.sessionToken"
-            case .other(let key): return "SecureKey.\(key)"
-            case .prefixKey(let key): return "SecureKey.\(key)"
-            }
+            return .init("\(keyPrefix)_\(self)")
         }
-        
-        func finalKey(keyPrefix: String?) -> SecureKey {
-         
-            if let keyPrefix = keyPrefix {
-                
-                return SecureKey.prefixKey(key: "\(keyPrefix)_\(key)")
-            }
-            
-            return self
+
+        return self
+    }
+}
+
+extension SecureStore.SecureKey {
+
+    static let facebookId = SecureStore.SecureKey.init("SecureKey.facebookId")
+    static let appleId = SecureStore.SecureKey.init("SecureKey.appleId")
+    static let appleFirstName = SecureStore.SecureKey.init("SecureKey.appleFirstName")
+    static let appleLastName = SecureStore.SecureKey.init("SecureKey.appleLastName")
+    static let appleEmail = SecureStore.SecureKey.init("SecureKey.appleEmail")
+    static let username = SecureStore.SecureKey.init("SecureKey.username")
+    static let password = SecureStore.SecureKey.init("SecureKey.password")
+    static let sessionToken = SecureStore.SecureKey.init("SecureKey.sessionToken")
+
+    static func other(key: String) -> SecureStore.SecureKey {
+        return .init(key)
+    }
+}
+
+public actor SecureStore: SecureStoreProvider {
+
+    public struct SecureKey: ExpressibleByStringLiteral {
+        let value: String
+
+        public init(_ value: String) {
+            self.value = value
+        }
+
+        public init(stringLiteral value: String) {
+            self.value = value
         }
     }
 
     public static var defaultStore: SecureStore = SecureStore()
-    private let provider: SecureStoreProvider
+    private var provider: SecureStoreProvider
     private let keyPrefix: String?
     
-    public convenience init(accessGroup: String? = nil, keyPrefix: String? = nil) {
+    public init(accessGroup: String? = nil, keyPrefix: String? = nil) {
 
         let provider = KeychainSwift()
         provider.synchronizable = false
@@ -68,29 +70,29 @@ public class SecureStore: SecureStoreProvider {
         (provider as? KeychainSwift)?.synchronizable = enabled
     }
 
-    public required init(provider: SecureStoreProvider, keyPrefix: String? = nil) {
+    public init(provider: SecureStoreProvider, keyPrefix: String? = nil) {
         self.provider = provider
         self.keyPrefix = keyPrefix
     }
 
-    public func set(value: String?, forKey key: SecureStore.SecureKey) {
-        provider.set(value: value, forKey: key.finalKey(keyPrefix: keyPrefix))
+    public func set(value: String?, forKey key: SecureStore.SecureKey) async {
+        await provider.set(value: value, forKey: key.finalKey(keyPrefix: keyPrefix))
     }
 
-    public func value(_ key: SecureStore.SecureKey) -> String? {
-        return provider.value(key.finalKey(keyPrefix: keyPrefix))
+    public func value(_ key: SecureStore.SecureKey) async -> String? {
+        return await provider.value(key.finalKey(keyPrefix: keyPrefix))
     }
     
-    public func set(value: Data?, forKey key: SecureKey) {
-        provider.set(value: value, forKey: key.finalKey(keyPrefix: keyPrefix))
+    public func set(value: Data?, forKey key: SecureKey) async {
+        await provider.set(value: value, forKey: key.finalKey(keyPrefix: keyPrefix))
     }
     
-    public func value(_ key: SecureKey) -> Data? {
-        return provider.value(key.finalKey(keyPrefix: keyPrefix))
+    public func value(_ key: SecureKey) async -> Data? {
+        return await provider.value(key.finalKey(keyPrefix: keyPrefix))
     }
 
-    public func clearAll() {
-        provider.clearAll()
+    public func clearAll() async {
+        await provider.clearAll()
     }
 }
 

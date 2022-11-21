@@ -2,11 +2,11 @@ import Foundation
 
 public class UserDefaultsStore: SecureStoreProvider {
     public func set(value: Data?, forKey key: SecureStore.SecureKey) {
-        store.set(value, forKey: key.key)
+        store.set(value, forKey: key.value)
     }
     
     public func value(_ key: SecureStore.SecureKey) -> Data? {
-        return store.data(forKey: key.key)
+        return store.data(forKey: key.value)
     }
     
 
@@ -14,11 +14,11 @@ public class UserDefaultsStore: SecureStoreProvider {
 
     public func set(value: String?, forKey key: SecureStore.SecureKey) {
 
-        store.set(value, forKey: key.key)
+        store.set(value, forKey: key.value)
     }
 
     public func value(_ key: SecureStore.SecureKey) -> String? {
-        return store.string(forKey: key.key)
+        return store.string(forKey: key.value)
     }
 
     public func clearAll() {

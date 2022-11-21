@@ -5,30 +5,30 @@ extension KeychainSwift: SecureStoreProvider {
     
     public func set(value: Data?, forKey key: SecureStore.SecureKey) {
         guard let value = value else {
-            self.delete(key.key)
+            self.delete(key.value)
             return
         }
-        self.set(value, forKey: key.key, withAccess: nil)
+        self.set(value, forKey: key.value, withAccess: nil)
     }
     
     public func value(_ key: SecureStore.SecureKey) -> Data? {
-        return self.getData(key.key)
+        return self.getData(key.value)
     }
     
     public func set(value: String?, forKey key: SecureStore.SecureKey) {
 
         guard let value = value else {
 
-            self.delete(key.key)
+            self.delete(key.value)
             return 
         }
 
-        self.set(value, forKey: key.key)
+        self.set(value, forKey: key.value)
     }
 
     public func value(_ key: SecureStore.SecureKey) -> String? {
 
-        return self.get(key.key)
+        return self.get(key.value)
     }
 
     public func clearAll() {
